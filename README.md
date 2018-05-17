@@ -31,7 +31,7 @@ Installation
 
 Copy the compiled module into your ZNC profile:
 
-    $ cp cmdnotify.so ~/.znc/modules/
+    $ cp mailnotify.so ~/.znc/modules/
 
 Now, load the module in ZNC:
 
