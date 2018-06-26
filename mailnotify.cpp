@@ -182,7 +182,7 @@ class CNotifoMod : public CModule
 			else if(pid == 0) /* child executes this */
 			{
 				// execute mailcommand
-				execl("/bin/bash", "bash", "-c", cmd.c_str(), NULL);
+				execl("/bin/sh", "sh", "-c", cmd.c_str(), NULL);
 				exit(0);
 			}
 			else /* parent executes this */
