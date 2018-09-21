@@ -34,14 +34,11 @@ using std::string;
 #define PutDebug(s) //s
 #endif
 
-class CNotifoMod : public CModule
+class CMailNotifyMod : public CModule
 {
 	protected:
 		// Application name
 		CString app;
-
-		// Too lazy to add CString("\r\n\") everywhere
-		CString crlf;
 
 		// User agent to use
 		CString user_agent;
@@ -70,9 +67,8 @@ class CNotifoMod : public CModule
 
 	public:
 
-		MODCONSTRUCTOR(CNotifoMod) {
+		MODCONSTRUCTOR(CMailNotifyMod) {
 			app = "ZNC";
-			crlf = "\r\n";
 
 			idle_time = time(NULL);
 			user_agent = "ZNC Mailnotify";
@@ -103,7 +99,7 @@ class CNotifoMod : public CModule
 			defaults["email_subject"] = "IRC Notification";
 			defaults["email_header"] = "This message just been sent on IRC:";
 		}
-		virtual ~CNotifoMod() {}
+		virtual ~CMailNotifyMod() {}
 
 	protected:
 
@@ -946,4 +942,4 @@ class CNotifoMod : public CModule
 		}
 };
 
-MODULEDEFS(CNotifoMod, "Send highlights to a specified mailbox")
+MODULEDEFS(CMailNotifyMod, "Send highlights to a specified mailbox")
