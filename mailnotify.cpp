@@ -100,6 +100,7 @@ class CNotifoMod : public CModule
 
 			// Mail defaults
 			defaults["email_address"] = "";
+			defaults["email_from"] = "ZNC mailnotify <znc@localhost>";
 			defaults["email_subject"] = "IRC Notification";
 			defaults["email_header"] = "This message just been sent on IRC:";
 		}
@@ -169,24 +170,37 @@ class CNotifoMod : public CModule
 			char iso8601 [20];
 			strftime(iso8601, 20, "%Y-%m-%d %H:%M:%S", timeinfo);
 
-			// forge the mailcmd
-			CString cmd = "echo -e \"Subject:" + options["email_subject"] + "\n" + options["email_header"] + "\n" + message + "\n\" | /usr/sbin/sendmail " + options["email_address"];
+			int commpipe[2];
+			if(pipe(commpipe)) /* pipe creation failed */
+			{
+				return false;
+			}
 
 			// create a new exec thread
-			int pid;
-			pid = fork();
+			int pid = fork();
 			if(pid < 0) /* process creation failed */
 			{
 				return false;
 			}
 			else if(pid == 0) /* child executes this */
 			{
-				// execute mailcommand
-				execl("/bin/sh", "sh", "-c", cmd.c_str(), NULL);
+				close(commpipe[1]);
+				dup2(commpipe[0], STDIN_FILENO);
+				close(commpipe[0]);
+				execlp("/usr/sbin/sendmail", "sendmail", options["email_address"].c_str(), NULL);
 				exit(0);
 			}
 			else /* parent executes this */
-			{  }
+			{
+				close(commpipe[0]);
+
+				// forge the email
+				CString raw_email = "From: " + options["email_from"] + "\nTo: " + options["email_address"] + "\nSubject: " + options["email_subject"] + "\n\n" + options["email_header"] + "\n" + short_message + "\n";
+				PutDebug(raw_email.c_str());
+
+				write(commpipe[1], raw_email.c_str(), raw_email.length());
+				close(commpipe[1]);
+			}
 			return true;
 		}
 
